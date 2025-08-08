@@ -1,0 +1,25 @@
+{
+  "name": "watch_me_api_ts",
+  "version": "1.0.0",
+  "description": "WatchMe API is an API to interact with the CNN 'Watch Me', connecting the Machine Learning end of the program with a user UI in React.",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/beatrizamante/watchme_api_backend/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beatrizamante/watchme_api_backend.git"
+  },
+  "homepage": "https://github.com/beatrizamante/watchme_api_backend#readme",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "packageManager": "pnpm@10.14.0",
+  "dependencies": {
+    "fastify": "^5.4.0",
+    "zod": "^4.0.15"
+  }
+}
