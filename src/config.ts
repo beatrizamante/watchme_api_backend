@@ -40,7 +40,7 @@ const db = {
       enableColors: true,
     },
     connection: {
-      database: Env.string("DATABASE_DB", "codestore_dev"),
+      database: Env.string("DATABASE_DB", "watchme_dev"),
       port: Env.number("DATABASE_PORT", 5432),
       user: Env.string("DATABASE_USER", "postgres"),
       password: Env.string("DATABASE_PASSWORD", "postgres"),
@@ -51,7 +51,7 @@ const db = {
   test: {
     client: "postgresql",
     connection: {
-      database: Env.string("TEST_DATABASE_DB", "codestore_test"),
+      database: Env.string("TEST_DATABASE_DB", "watchme_test"),
       port: Env.number("TEST_DATABASE_PORT", 5432),
       user: Env.string("TEST_DATABASE_USER", "postgres"),
       password: Env.string("TEST_DATABASE_PASSWORD", "postgres"),
