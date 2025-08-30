@@ -5,9 +5,8 @@ import { BaseModel } from "./models/BaseModel.js";
 type EnvType = keyof typeof config.db;
 
 const makeDatabase = () => {
-  const env = config.env as EnvType;
   const knex = Knex.knex({
-    ...config.db[env],
+    ...config.db[config.env as EnvType],
     debug: true,
   });
 

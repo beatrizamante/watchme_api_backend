@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "db:create:dev": "createdbjs ${DATABASE_DB:-watchme_dev} --user=${DATABASE_USER:-postgres} --password=${DATABASE_PASSWORD:-postgres} --host=${DATABASE_HOST:-127.0.0.1}",
+    "db:create:dev": "createdbjs watchme_dev --user=postgres --password=postgres --host=127.0.0.1",
     "db": "tsx ./node_modules/knex/bin/cli.js",
     "db:migrate:dev": "npm run db migrate:latest",
     "db:seed:dev": "npm run db seed:run",

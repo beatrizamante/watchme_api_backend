@@ -4,11 +4,7 @@ import bcrypt from "bcryptjs";
 import { VideoModel } from "./VideoModel.ts";
 import { PersonModel } from "./PersonModel.ts";
 import { ProfilePictureModel } from "./ProfilePictureModel.ts";
-
-export enum Roles {
-  ADMIN = "ADMIN",
-  USER = "USER",
-}
+import { Roles } from "../../../interfaces/roles.ts";
 
 type AuthParams = {
   email: string;

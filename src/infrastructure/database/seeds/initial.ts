@@ -1,24 +1,20 @@
 import type { Knex } from "knex";
-import { BaseModel } from "../models/BaseModel.js";
-import { Roles, UserModel } from "../models/UserModel.js";
+import { Roles } from "../../../interfaces/roles.ts";
+import bcrypt from "bcryptjs";
 
 export async function seed(knex: Knex): Promise<void> {
-  BaseModel.knex(knex);
-
-  const mockUsers = [
+  await knex("users").insert([
     {
-      name: "Beatriz Amante",
+      username: "Beatriz Amante",
       email: "beatriz@amante.com",
-      password: "abc123",
+      encrypted_password: bcrypt.hashSync("abc123", bcrypt.genSaltSync(10)),
       role: Roles.USER,
     },
     {
-      name: "Beatriz Amante",
+      username: "Admin",
       email: "admin@amante.com",
-      password: "admin",
+      encrypted_password: bcrypt.hashSync("admin", bcrypt.genSaltSync(10)),
       role: Roles.ADMIN,
     },
-  ];
-
-  await UserModel.query().insert(mockUsers);
+  ]);
 }
