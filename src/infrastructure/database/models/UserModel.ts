@@ -20,6 +20,7 @@ class UserModel extends BaseModel {
   password!: string;
   encrypted_password!: string;
   role?: Roles;
+  active!: boolean;
 
   static relationMappings: RelationMappings = {
     person: {
@@ -84,6 +85,10 @@ class UserModel extends BaseModel {
 
   isUser() {
     return this.role === Roles.USER;
+  }
+
+  isActive() {
+    return this.active === true;
   }
 
   private async passwordIs(password: string) {
