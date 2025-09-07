@@ -1,23 +1,21 @@
+import { DatabaseError } from "../../../domain/applicationErrors.ts";
+import { VideoInterface } from "../../../domain/VideoRepository.ts";
 import { VideoModel } from "../models/VideoModel.ts";
 
-export const VideoRepository = {
+export class VideoRepository implements VideoInterface {
   async findById(id: number) {
     try {
       const video = await VideoModel.query().findById(id);
-
-      if (!video)
-        return {
-          code: "NOT_FOUND",
-          message: "Product not found",
-        };
 
       return video;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error searching for the id: ${message}`,
+      });
     }
-  },
+  }
   async create(video: VideoModel) {
     try {
       const createdVideo = await VideoModel.query().insertAndFetch(video);
@@ -26,9 +24,11 @@ export const VideoRepository = {
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error creating the person: ${message}`,
+      });
     }
-  },
+  }
 
   async delete(video: VideoModel) {
     try {
@@ -38,7 +38,9 @@ export const VideoRepository = {
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error deleting the person: ${message}`,
+      });
     }
-  },
-};
+  }
+}

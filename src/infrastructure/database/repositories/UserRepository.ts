@@ -1,41 +1,35 @@
+import { DatabaseError } from "../../../domain/applicationErrors.ts";
+import { UserInterface } from "../../../domain/UserRepository.ts";
 import { UserModel } from "../models/UserModel.ts";
 
-export const UserRepository = {
+export class UserRepository implements UserInterface {
   async findById(id: number) {
     try {
       const user = await UserModel.query().findById(id);
-
-      if (!user)
-        return {
-          code: "NOT_FOUND",
-          message: "User not found",
-        };
 
       return user;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error searching for the id: ${message}`,
+      });
     }
-  },
+  }
 
   async findByUsername(username: string) {
     try {
       const user = await UserModel.query().findOne({ username });
 
-      if (!user)
-        return {
-          code: "NOT_FOUND",
-          message: "User not found",
-        };
-
       return user;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error searching for the username: ${message}`,
+      });
     }
-  },
+  }
 
   async findByEmail(email: string) {
     try {
@@ -44,9 +38,11 @@ export const UserRepository = {
       return user;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error searching for the email: ${message}`,
+      });
     }
-  },
+  }
 
   async create(user: UserModel) {
     try {
@@ -56,9 +52,11 @@ export const UserRepository = {
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error creating the user: ${message}`,
+      });
     }
-  },
+  }
 
   async update(user: UserModel) {
     try {
@@ -71,7 +69,9 @@ export const UserRepository = {
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error updating the user: ${message}`,
+      });
     }
-  },
-};
+  }
+}
