@@ -1,3 +1,4 @@
+import { DatabaseError } from "../../../domain/applicationErrors.ts";
 import { ProfilePictureModel } from "../models/ProfilePictureModel.ts";
 
 export const ProfilePictureRepository = {
@@ -5,17 +6,13 @@ export const ProfilePictureRepository = {
     try {
       const profilePicture = await ProfilePictureModel.query().findById(id);
 
-      if (!profilePicture)
-        return {
-          code: "NOT_FOUND",
-          message: "Product not found",
-        };
-
       return profilePicture;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error searching the picture id: ${message}`,
+      });
     }
   },
 
@@ -28,7 +25,9 @@ export const ProfilePictureRepository = {
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error creating the picture: ${message}`,
+      });
     }
   },
 
@@ -41,7 +40,9 @@ export const ProfilePictureRepository = {
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error updating the picture: ${message}`,
+      });
     }
   },
 

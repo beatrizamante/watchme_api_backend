@@ -5,6 +5,7 @@ export const ERROR_CODES = {
   INVALID_PERSON_ERROR: "INVALID_PERSON_ERROR",
   INVALID_VIDEO_ERROR: "INVALID_VIDEO_ERROR",
   DATABASE_ERROR: "DATABASE_ERROR",
+  INVALID_PROFILE_PICTURE_ERROR: "INVALID_PROFILE_PICTURE_ERROR",
 };
 
 export class BaseError extends Error {
@@ -50,6 +51,14 @@ export class InvalidPersonError extends BaseError {
 
 export class InvalidVideoError extends BaseError {
   public readonly code = "INVALID_VIDEO_ERROR";
+
+  constructor({ message }: { message: string }) {
+    super(message);
+  }
+}
+
+export class InvalidProfilePictureError extends BaseError {
+  public readonly code = "INVALID_PROFILE_PICTURE_ERROR";
 
   constructor({ message }: { message: string }) {
     super(message);
