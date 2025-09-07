@@ -18,5 +18,7 @@ export const createPerson = ({
 }: CreateUserParams) => {
   const validUser = new User(user);
 
+  //TODO - Also add a Transaction to user
+
   return userRepository.create(validUser);
 };

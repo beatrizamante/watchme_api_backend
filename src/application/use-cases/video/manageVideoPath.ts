@@ -1,5 +1,5 @@
 import { Video } from "../../../domain/Video.ts";
 
-export const saveVideoPath = (video: Video): string => {
+export const manageVideoPath = (video: Video): string => {
   return "";
 };

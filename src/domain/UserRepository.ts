@@ -1,8 +1,8 @@
-import { UserModel } from "../infrastructure/database/models/UserModel.ts";
+import { User } from "./User.ts";
 export interface UserInterface {
-  findById: (id: number) => Promise<UserModel | undefined>;
-  findByUsername: (username: string) => Promise<UserModel | undefined>;
-  findByEmail: (email: string) => Promise<UserModel | undefined>;
-  create: (user: UserModel) => Promise<UserModel>;
-  update: (user: UserModel) => Promise<UserModel>;
+  findById: (id: number) => Promise<User | undefined>;
+  findByUsername: (username: string) => Promise<User | undefined>;
+  findByEmail: (email: string) => Promise<User | undefined>;
+  create: (user: User) => Promise<User>;
+  update: (user: User) => Promise<User>;
 }

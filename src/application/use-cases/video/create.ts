@@ -1,6 +1,7 @@
+import { ExternalServiceError } from "../../../domain/applicationErrors.ts";
 import { Video } from "../../../domain/Video.ts";
 import { VideoInterface } from "../../../domain/VideoRepository.ts";
-import { saveVideoPath } from "./saveVideoPath.ts";
+import { manageVideoPath } from "./manageVideoPath.ts";
 
 type CreateVideoParams = {
   video: Video;
@@ -8,7 +9,11 @@ type CreateVideoParams = {
 };
 
 export const createVideo = ({ video, videoRepository }: CreateVideoParams) => {
-  const validPath = saveVideoPath(video);
+  const validPath = manageVideoPath(video);
+
+  if (!validPath)
+    throw new ExternalServiceError({ message: "Cannot create path " });
+
   const validVideo = new Video({
     ...video,
     path: validPath,
