@@ -1,13 +1,12 @@
 import { PersonModel } from "../models/PersonModel.ts";
 import { PersonInterface } from "../../../domain/PersonRepository.ts";
 import { DatabaseError } from "../../../domain/applicationErrors.ts";
+import { Person } from "../../../domain/Person.ts";
 
 export class PersonRepository implements PersonInterface {
-  async findById(id: number) {
+  async findById(id: number): Promise<Person | undefined> {
     try {
       const person = await PersonModel.query().findById(id);
-
-      if (!person) return null;
 
       return person;
     } catch (error) {
@@ -18,7 +17,7 @@ export class PersonRepository implements PersonInterface {
       });
     }
   }
-  async create(person: PersonModel) {
+  async create(person: Person): Promise<Person> {
     try {
       const createdPerson = await PersonModel.query().insertAndFetch(person);
 
@@ -32,9 +31,9 @@ export class PersonRepository implements PersonInterface {
     }
   }
 
-  async delete(person: PersonModel) {
+  async delete(person: Person): Promise<number> {
     try {
-      const deletedPerson = await PersonModel.query().deleteById(person.id);
+      const deletedPerson = await PersonModel.query().deleteById(person.id!);
 
       return deletedPerson;
     } catch (error) {

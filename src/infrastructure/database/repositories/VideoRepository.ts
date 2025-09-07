@@ -1,4 +1,5 @@
 import { DatabaseError } from "../../../domain/applicationErrors.ts";
+import { Video } from "../../../domain/Video.ts";
 import { VideoInterface } from "../../../domain/VideoRepository.ts";
 import { VideoModel } from "../models/VideoModel.ts";
 
@@ -16,7 +17,7 @@ export class VideoRepository implements VideoInterface {
       });
     }
   }
-  async create(video: VideoModel) {
+  async create(video: Video) {
     try {
       const createdVideo = await VideoModel.query().insertAndFetch(video);
 
@@ -30,9 +31,9 @@ export class VideoRepository implements VideoInterface {
     }
   }
 
-  async delete(video: VideoModel) {
+  async delete(video: Video) {
     try {
-      const deletedVideo = await VideoModel.query().deleteById(video.id);
+      const deletedVideo = await VideoModel.query().deleteById(video.id!);
 
       return deletedVideo;
     } catch (error) {

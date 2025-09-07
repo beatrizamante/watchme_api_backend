@@ -6,7 +6,7 @@ type CreateVideoDTO = {
   path: string;
 };
 
-export class User {
+export class Video {
   public readonly id?: number;
   public readonly user_id: number;
   public readonly path: string;
