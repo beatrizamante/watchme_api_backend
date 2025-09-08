@@ -4,15 +4,20 @@ import { ProfileIPictureInterface } from "../../../../domain/ProfilePictureRepos
 import { managateProfilePicturePath } from "./manageProfilePicturePath.ts";
 
 type CreateProfilePictureParams = {
+  file: Buffer;
   profilePicture: ProfilePicture;
   profilePictureRepository: ProfileIPictureInterface;
 };
 
 export const createPicture = ({
+  file,
   profilePicture,
   profilePictureRepository,
 }: CreateProfilePictureParams) => {
-  const validPath = managateProfilePicturePath(profilePicture);
+  const validPath = managateProfilePicturePath.saveImage(
+    file,
+    String(profilePicture.id)
+  );
 
   if (!validPath)
     throw new ExternalServiceError({ message: "Cannot create picture path" });

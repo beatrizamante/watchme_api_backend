@@ -1,7 +1,39 @@
-import { ProfilePicture } from "../../../../domain/ProfilePicture.ts";
+import path from "path";
+import fs from "fs";
+import { ExternalServiceError } from "../../../../domain/applicationErrors.ts";
 
-export const managateProfilePicturePath = (
-  profilePicture: ProfilePicture
-): string => {
-  return "";
+const uploadDir = path.join(__dirname, "..", "uploads");
+
+export const managateProfilePicturePath = {
+  saveImage: async (file: Buffer, filename: string): Promise<string> => {
+    const filePath = path.join(uploadDir, filename);
+    await fs.promises.writeFile(filePath, file);
+    return filePath;
+  },
+
+  replaceImage: async (
+    newFile: Buffer,
+    filename: string,
+    imagePath: string
+  ) => {
+    try {
+      await fs.promises.unlink(imagePath);
+    } catch (error) {
+      throw new ExternalServiceError({
+        message: `There was an error while deleting old image: ${error}`,
+      });
+    }
+
+    return await managateProfilePicturePath.saveImage(newFile, filename);
+  },
+
+  deleteImage: async (imagePath: string) => {
+    try {
+      await fs.promises.unlink(imagePath);
+    } catch (error) {
+      throw new ExternalServiceError({
+        message: `There was an error while deleting old image: ${error}`,
+      });
+    }
+  },
 };

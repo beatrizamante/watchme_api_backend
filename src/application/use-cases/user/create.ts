@@ -17,7 +17,6 @@ export const createPerson = ({
   profilePictureRepository,
 }: CreateUserParams) => {
   const validUser = new User(user);
-
   //TODO - Also add a Transaction to user
 
   return userRepository.create(validUser);

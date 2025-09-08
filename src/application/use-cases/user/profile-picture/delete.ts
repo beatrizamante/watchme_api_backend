@@ -12,7 +12,9 @@ export const createPicture = ({
   profilePicture,
   profilePictureRepository,
 }: DeleteProfilePictureParams) => {
-  const deletePath = managateProfilePicturePath(profilePicture);
+  const deletePath = managateProfilePicturePath.deleteImage(
+    profilePicture.path
+  );
 
   if (!deletePath)
     throw new ExternalServiceError({ message: "Cannot delete picture path" });
