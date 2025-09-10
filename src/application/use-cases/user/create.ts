@@ -5,18 +5,21 @@ import { UserInterface } from "../../../domain/UserRepository.ts";
 
 type CreateUserParams = {
   user: User;
-  profile_picture: ProfilePicture;
+  file: Buffer;
   userRepository: UserInterface;
   profilePictureRepository: ProfileIPictureInterface;
 };
 
-export const createPerson = ({
+export const createUser = ({
   user,
-  profile_picture,
+  file,
   userRepository,
   profilePictureRepository,
 }: CreateUserParams) => {
   const validUser = new User(user);
+
+  const profilePicture = file;
+
   //TODO - Also add a Transaction to user
 
   return userRepository.create(validUser);

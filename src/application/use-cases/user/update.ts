@@ -1,33 +1,39 @@
 import { ExternalServiceError } from "../../../domain/applicationErrors.ts";
-import { ProfilePicture } from "../../../domain/ProfilePicture.ts";
-import { ProfileIPictureInterface } from "../../../domain/ProfilePictureRepository.ts";
-import { managateProfilePicturePath } from "./profile-picture/manageProfilePicturePath.ts";
+import { User } from "../../../domain/User.ts";
+import { UserInterface } from "../../../domain/UserRepository.ts";
+import { manageImagePath } from "../../_lib/manageImagePath.ts";
 
-type DeleteProfilePictureParams = {
-  file: Buffer;
-  profilePicture: ProfilePicture;
-  profilePictureRepository: ProfileIPictureInterface;
+type UpdateUserParams = {
+  file?: Buffer;
+  user: User;
+  userRepository: UserInterface;
 };
 
-export const createPicture = async ({
+export const updateUser = async ({
   file,
-  profilePicture,
-  profilePictureRepository,
-}: DeleteProfilePictureParams) => {
-  const updatedImage = await managateProfilePicturePath.replaceImage(
-    file,
-    String(profilePicture.id),
-    profilePicture.path
-  );
+  user,
+  userRepository,
+}: UpdateUserParams) => {
+  let currentFile = await findProfilePicture();
 
-  if (!updatedImage)
-    throw new ExternalServiceError({ message: "Cannot delete picture path" });
+  if (file) {
+    const updatedImage = await manageImagePath.replaceImage(
+      file,
+      String(currentFile.id),
+      currentFile.path
+    );
+
+    if (!updatedImage)
+      throw new ExternalServiceError({ message: "Cannot delete picture path" });
+
+    currentFile = updatedImage;
+  }
 
   //TODO - Transaction inside profile picture, where the path is only deleted if the whole transaction is finished
-  const validPicture = new ProfilePicture({
-    ...profilePicture,
-    path: updatedImage,
+  const updatedUser = new User({
+    ...user,
+    path: currentFile,
   });
 
-  return profilePictureRepository.update(validPicture);
+  return await userRepository.update(updatedUser);
 };

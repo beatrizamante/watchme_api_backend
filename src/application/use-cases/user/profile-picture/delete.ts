@@ -1,7 +1,7 @@
 import { ExternalServiceError } from "../../../../domain/applicationErrors.ts";
 import { ProfilePicture } from "../../../../domain/ProfilePicture.ts";
 import { ProfileIPictureInterface } from "../../../../domain/ProfilePictureRepository.ts";
-import { managateProfilePicturePath } from "./manageProfilePicturePath.ts";
+import { manageImagePath } from "../../../_lib/manageImagePath.ts";
 
 type DeleteProfilePictureParams = {
   profilePicture: ProfilePicture;
@@ -12,9 +12,7 @@ export const createPicture = ({
   profilePicture,
   profilePictureRepository,
 }: DeleteProfilePictureParams) => {
-  const deletePath = managateProfilePicturePath.deleteImage(
-    profilePicture.path
-  );
+  const deletePath = manageImagePath.deleteImage(profilePicture.path);
 
   if (!deletePath)
     throw new ExternalServiceError({ message: "Cannot delete picture path" });

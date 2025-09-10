@@ -1,10 +1,10 @@
 import path from "path";
 import fs from "fs";
-import { ExternalServiceError } from "../../../../domain/applicationErrors.ts";
+import { ExternalServiceError } from "../../domain/applicationErrors.ts";
 
 const uploadDir = path.join(__dirname, "..", "uploads");
 
-export const managateProfilePicturePath = {
+export const manageImagePath = {
   saveImage: async (file: Buffer, filename: string): Promise<string> => {
     const filePath = path.join(uploadDir, filename);
     await fs.promises.writeFile(filePath, file);
@@ -24,7 +24,7 @@ export const managateProfilePicturePath = {
       });
     }
 
-    return await managateProfilePicturePath.saveImage(newFile, filename);
+    return await manageImagePath.saveImage(newFile, filename);
   },
 
   deleteImage: async (imagePath: string) => {

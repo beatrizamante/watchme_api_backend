@@ -3,7 +3,7 @@ import {
   InvalidVideoError,
 } from "../../../domain/applicationErrors.ts";
 import { VideoInterface } from "../../../domain/VideoRepository.ts";
-import { manageVideoPath } from "./manageVideoPath.ts";
+import { manageVideoPath } from "../../_lib/manageVideoPath.ts";
 
 type DeleteVideoParams = {
   videoId: number;
