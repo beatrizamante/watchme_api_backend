@@ -1,22 +1,50 @@
-import { ExternalServiceError } from "../../../../domain/applicationErrors.ts";
+import {
+  ExternalServiceError,
+  InvalidProfilePictureError,
+} from "../../../../domain/applicationErrors.ts";
 import { ProfilePicture } from "../../../../domain/ProfilePicture.ts";
 import { ProfileIPictureInterface } from "../../../../domain/ProfilePictureRepository.ts";
+import { ProfilePictureModel } from "../../../../infrastructure/database/models/ProfilePictureModel.ts";
 import { manageImagePath } from "../../../_lib/manageImagePath.ts";
 
-type CreateProfilePictureParams = {
+type UpsertProfilePictureParams = {
   file: Buffer;
+  user_id: number;
   profilePictureRepository: ProfileIPictureInterface;
 };
 
-export const createPicture = ({
+export const upsertPicture = async ({
   file,
+  user_id,
   profilePictureRepository,
-}: CreateProfilePictureParams) => {
-  const validPath = manageImagePath.saveImage(file, String(profilePicture.id));
+}: UpsertProfilePictureParams) => {
+  const trx = await ProfilePictureModel.startTransaction();
+  let validPicture: ProfilePicture;
 
-  if (!validPath)
-    throw new ExternalServiceError({ message: "Cannot create picture path" });
-  const validPicture = new ProfilePicture(profilePicture);
+  try {
+    const filename = crypto.randomUUID();
+    const validPath = await manageImagePath.saveImage(file, filename);
 
-  return profilePictureRepository.create(validPicture);
+    if (!validPath)
+      throw new ExternalServiceError({
+        message: "Cannot create picture path",
+      });
+
+    validPicture = new ProfilePicture({
+      user_id,
+      path: validPath,
+    });
+
+    const createdPic = await profilePictureRepository.upsert(validPicture, trx);
+
+    await trx.commit();
+
+    return createdPic;
+  } catch (error) {
+    await trx.rollback();
+
+    throw new InvalidProfilePictureError({
+      message: `Cannot create or update picture: ${error}`,
+    });
+  }
 };

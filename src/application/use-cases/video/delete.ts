@@ -1,8 +1,6 @@
-import {
-  ExternalServiceError,
-  InvalidVideoError,
-} from "../../../domain/applicationErrors.ts";
+import { InvalidVideoError } from "../../../domain/applicationErrors.ts";
 import { VideoInterface } from "../../../domain/VideoRepository.ts";
+import { VideoModel } from "../../../infrastructure/database/models/VideoModel.ts";
 import { manageVideoPath } from "../../_lib/manageVideoPath.ts";
 
 type DeleteVideoParams = {
@@ -14,15 +12,24 @@ export const deleteVideo = async ({
   videoId,
   videoRepository,
 }: DeleteVideoParams) => {
-  const validVideo = await videoRepository.findById(videoId);
+  const trx = await VideoModel.startTransaction();
 
-  if (!validVideo)
-    throw new InvalidVideoError({ message: "This video doesn't exist" });
+  try {
+    const validVideo = await videoRepository.findById(videoId);
 
-  const deleteVideo = manageVideoPath(validVideo);
+    if (!validVideo)
+      throw new InvalidVideoError({ message: "This video doesn't exist" });
 
-  if (!deleteVideo)
-    throw new ExternalServiceError({ message: "Cannot delete path " });
+    const deleted = await videoRepository.delete(videoId, trx);
 
-  return await videoRepository.delete(validVideo);
+    await manageVideoPath.deleteVideo(validVideo.path);
+
+    await trx.commit();
+
+    return deleted;
+  } catch (error) {
+    await trx.rollback();
+
+    throw new InvalidVideoError({ message: `Cannot delete video: ${error}` });
+  }
 };

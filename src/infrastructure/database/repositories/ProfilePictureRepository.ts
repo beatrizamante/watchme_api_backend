@@ -1,3 +1,4 @@
+import { Transaction } from "objection";
 import { DatabaseError } from "../../../domain/applicationErrors.ts";
 import { ProfilePictureModel } from "../models/ProfilePictureModel.ts";
 
@@ -16,10 +17,11 @@ export const ProfilePictureRepository = {
     }
   },
 
-  async create(profilePicture: ProfilePictureModel) {
+  async upsert(profilePicture: ProfilePictureModel, trx: Transaction) {
     try {
-      const createdProfilePicture =
-        await ProfilePictureModel.query().insertAndFetch(profilePicture);
+      const createdProfilePicture = await ProfilePictureModel.query(
+        trx
+      ).upsertGraphAndFetch(profilePicture);
 
       return createdProfilePicture;
     } catch (error) {
@@ -27,21 +29,6 @@ export const ProfilePictureRepository = {
 
       throw new DatabaseError({
         message: `There was an error creating the picture: ${message}`,
-      });
-    }
-  },
-
-  async update(profilePicture: ProfilePictureModel) {
-    try {
-      const updatedProfilePicture =
-        await ProfilePictureModel.query().patchAndFetch(profilePicture);
-
-      return updatedProfilePicture;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Database error";
-
-      throw new DatabaseError({
-        message: `There was an error updating the picture: ${message}`,
       });
     }
   },

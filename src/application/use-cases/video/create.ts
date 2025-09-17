@@ -1,23 +1,44 @@
 import { ExternalServiceError } from "../../../domain/applicationErrors.ts";
 import { Video } from "../../../domain/Video.ts";
 import { VideoInterface } from "../../../domain/VideoRepository.ts";
+import { VideoModel } from "../../../infrastructure/database/models/VideoModel.ts";
 import { manageVideoPath } from "../../_lib/manageVideoPath.ts";
+import { InvalidVideoError } from "../../../domain/applicationErrors.ts";
 
 type CreateVideoParams = {
-  video: Video;
+  video: Buffer;
+  user_id: number;
   videoRepository: VideoInterface;
 };
 
-export const createVideo = ({ video, videoRepository }: CreateVideoParams) => {
-  const validPath = manageVideoPath(video);
+export const createVideo = async ({
+  video,
+  user_id,
+  videoRepository,
+}: CreateVideoParams) => {
+  const trx = await VideoModel.startTransaction();
 
-  if (!validPath)
-    throw new ExternalServiceError({ message: "Cannot create path " });
+  try {
+    const fileName = crypto.randomUUID();
+    const validPath = await manageVideoPath.saveVideo(video, fileName);
 
-  const validVideo = new Video({
-    ...video,
-    path: validPath,
-  });
+    if (!validPath)
+      throw new ExternalServiceError({ message: "Cannot create path " });
 
-  return videoRepository.create(validVideo);
+    const validVideo = new Video({
+      user_id,
+      path: validPath,
+    });
+    const createdVideo = videoRepository.create(validVideo, trx);
+
+    await trx.commit();
+
+    return createdVideo;
+  } catch (error) {
+    await trx.rollback();
+
+    throw new InvalidVideoError({
+      message: `There was an error trying to create the video: ${error}`,
+    });
+  }
 };

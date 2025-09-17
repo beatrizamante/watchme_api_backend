@@ -1,3 +1,4 @@
+import { Transaction } from "objection";
 import { DatabaseError } from "../../../domain/applicationErrors.ts";
 import { Video } from "../../../domain/Video.ts";
 import { VideoInterface } from "../../../domain/VideoRepository.ts";
@@ -17,9 +18,9 @@ export class VideoRepository implements VideoInterface {
       });
     }
   }
-  async create(video: Video) {
+  async create(video: Video, trx: Transaction) {
     try {
-      const createdVideo = await VideoModel.query().insertAndFetch(video);
+      const createdVideo = await VideoModel.query(trx).insertAndFetch(video);
 
       return createdVideo;
     } catch (error) {
@@ -31,9 +32,9 @@ export class VideoRepository implements VideoInterface {
     }
   }
 
-  async delete(video: Video) {
+  async delete(id: number, trx: Transaction) {
     try {
-      const deletedVideo = await VideoModel.query().deleteById(video.id!);
+      const deletedVideo = await VideoModel.query(trx).deleteById(id);
 
       return deletedVideo;
     } catch (error) {
