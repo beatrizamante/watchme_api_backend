@@ -1,6 +1,10 @@
-import { ExternalServiceError } from "../../../../domain/applicationErrors.ts";
+import {
+  ExternalServiceError,
+  InvalidProfilePictureError,
+} from "../../../../domain/applicationErrors.ts";
 import { ProfilePicture } from "../../../../domain/ProfilePicture.ts";
 import { ProfileIPictureInterface } from "../../../../domain/ProfilePictureRepository.ts";
+import { ProfilePictureModel } from "../../../../infrastructure/database/models/ProfilePictureModel.ts";
 import { manageImagePath } from "../../../_lib/manageImagePath.ts";
 
 type DeleteProfilePictureParams = {
@@ -8,17 +12,28 @@ type DeleteProfilePictureParams = {
   profilePictureRepository: ProfileIPictureInterface;
 };
 
-export const createPicture = ({
+export const deletePicture = async ({
   profilePicture,
   profilePictureRepository,
 }: DeleteProfilePictureParams) => {
-  const deletePath = manageImagePath.deleteImage(profilePicture.path);
+  const trx = await ProfilePictureModel.startTransaction();
 
-  if (!deletePath)
-    throw new ExternalServiceError({ message: "Cannot delete picture path" });
+  try {
+    const deletePath = manageImagePath.deleteImage(profilePicture.path);
 
-  //TODO - Transaction inside profile picture, where the path is only deleted if the whole transaction is finished
-  const validPicture = new ProfilePicture(profilePicture);
+    if (!deletePath)
+      throw new ExternalServiceError({ message: "Cannot delete picture path" });
 
-  return profilePictureRepository.create(validPicture);
+    const isDeleted = profilePictureRepository.delete(profilePicture, trx);
+
+    await trx.commit();
+
+    return isDeleted;
+  } catch (error) {
+    await trx.rollback();
+
+    throw new InvalidProfilePictureError({
+      message: `Cannot create or update picture: ${error}`,
+    });
+  }
 };

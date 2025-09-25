@@ -10,23 +10,6 @@ export const manageImagePath = {
     await fs.promises.writeFile(filePath, file);
     return filePath;
   },
-
-  replaceImage: async (
-    newFile: Buffer,
-    filename: string,
-    imagePath: string
-  ) => {
-    try {
-      await fs.promises.unlink(imagePath);
-    } catch (error) {
-      throw new ExternalServiceError({
-        message: `There was an error while deleting old image: ${error}`,
-      });
-    }
-
-    return await manageImagePath.saveImage(newFile, filename);
-  },
-
   deleteImage: async (imagePath: string) => {
     try {
       await fs.promises.unlink(imagePath);

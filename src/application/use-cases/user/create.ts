@@ -1,4 +1,3 @@
-import { ProfilePicture } from "../../../domain/ProfilePicture.ts";
 import { ProfileIPictureInterface } from "../../../domain/ProfilePictureRepository.ts";
 import { User } from "../../../domain/User.ts";
 import { UserInterface } from "../../../domain/UserRepository.ts";
@@ -19,8 +18,6 @@ export const createUser = ({
   const validUser = new User(user);
 
   const profilePicture = file;
-
-  //TODO - Also add a Transaction to user
 
   return userRepository.create(validUser);
 };
