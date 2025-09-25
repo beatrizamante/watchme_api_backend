@@ -5,7 +5,7 @@ import {
 import { ProfilePicture } from "../../../../domain/ProfilePicture.ts";
 import { ProfileIPictureInterface } from "../../../../domain/ProfilePictureRepository.ts";
 import { ProfilePictureModel } from "../../../../infrastructure/database/models/ProfilePictureModel.ts";
-import { manageImagePath } from "../../../_lib/manageImagePath.ts";
+import { managePath } from "../../../_lib/managePath.ts";
 
 type DeleteProfilePictureParams = {
   profilePicture: ProfilePicture;
@@ -19,7 +19,7 @@ export const deletePicture = async ({
   const trx = await ProfilePictureModel.startTransaction();
 
   try {
-    const deletePath = manageImagePath.deleteImage(profilePicture.path);
+    const deletePath = managePath.delete(profilePicture.path);
 
     if (!deletePath)
       throw new ExternalServiceError({ message: "Cannot delete picture path" });

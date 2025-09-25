@@ -1,7 +1,7 @@
 import { ExternalServiceError } from "../../../domain/applicationErrors.ts";
 import { User } from "../../../domain/User.ts";
 import { UserInterface } from "../../../domain/UserRepository.ts";
-import { manageImagePath } from "../../_lib/manageImagePath.ts";
+import { manageImagePath } from "../../_lib/managePath.ts";
 
 type UpdateUserParams = {
   file?: Buffer;
