@@ -1,0 +1,37 @@
+import { FastifyReply, FastifyRequest } from "fastify";
+import jwt from "jsonwebtoken";
+import { config } from "../../../config.ts";
+import { UnathenticatedError } from "../../../domain/applicationErrors.ts";
+import { UserModel } from "../../../infrastructure/database/models/UserModel.ts";
+
+export const authentication = {
+  login: async (
+    request: FastifyRequest<{ Body: { email: string; password: string } }>,
+    reply: FastifyReply
+  ) => {
+    const { email, password } = request.body;
+    const user = await UserModel.authenticate({ email, password });
+
+    if (!user) {
+      throw new UnathenticatedError({
+        message: "Something went wrong, try again.",
+      });
+    }
+
+    const token = jwt.sign({ userId: user.id }, config.secret.sessionSecret);
+
+    reply.setCookie("token", token, {
+      httpOnly: true,
+      path: "/",
+      maxAge: 60 * 30,
+      sameSite: "none",
+    });
+
+    return reply.send({ message: "Login successful" });
+  },
+
+  logout: async (__: FastifyRequest, reply: FastifyReply) => {
+    reply.clearCookie("token", { path: "/" });
+    return reply.send({ message: "Logout" });
+  },
+};
