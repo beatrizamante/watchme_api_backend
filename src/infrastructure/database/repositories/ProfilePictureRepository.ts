@@ -17,6 +17,23 @@ export const ProfilePictureRepository = {
     }
   },
 
+  async findByUserId(user_id: number) {
+    try {
+      const profilePicture = await ProfilePictureModel.query().where(
+        "user_id",
+        user_id
+      );
+
+      return profilePicture;
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Database error";
+
+      throw new DatabaseError({
+        message: `There was an error searching the picture id: ${message}`,
+      });
+    }
+  },
+
   async upsert(profilePicture: ProfilePictureModel, trx: Transaction) {
     try {
       const createdProfilePicture = await ProfilePictureModel.query(

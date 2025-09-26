@@ -1,7 +1,7 @@
 import { InvalidVideoError } from "../../../domain/applicationErrors.ts";
 import { VideoInterface } from "../../../domain/VideoRepository.ts";
 import { VideoModel } from "../../../infrastructure/database/models/VideoModel.ts";
-import { manageVideoPath } from "../../_lib/manageVideoPath.ts";
+import { managePath } from "../../_lib/managePath.ts";
 
 type DeleteVideoParams = {
   videoId: number;
@@ -22,7 +22,7 @@ export const deleteVideo = async ({
 
     const deleted = await videoRepository.delete(videoId, trx);
 
-    await manageVideoPath.deleteVideo(validVideo.path);
+    await managePath.delete(validVideo.path);
 
     await trx.commit();
 

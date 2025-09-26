@@ -5,7 +5,7 @@ import {
 import { ProfilePicture } from "../../../../domain/ProfilePicture.ts";
 import { ProfileIPictureInterface } from "../../../../domain/ProfilePictureRepository.ts";
 import { ProfilePictureModel } from "../../../../infrastructure/database/models/ProfilePictureModel.ts";
-import { manageImagePath } from "../../../_lib/manageImagePath.ts";
+import { managePath } from "../../../_lib/managePath.ts";
 
 type UpsertProfilePictureParams = {
   file: Buffer;
@@ -24,7 +24,7 @@ export const updatePicture = async ({
   let validPicture: ProfilePicture;
 
   try {
-    const isDeleted = manageImagePath.deleteImage(profilePicture.path);
+    const isDeleted = managePath.delete(profilePicture.path);
 
     if (!isDeleted)
       throw new InvalidProfilePictureError({
@@ -32,7 +32,7 @@ export const updatePicture = async ({
       });
 
     const filename = crypto.randomUUID();
-    const validPath = await manageImagePath.saveImage(file, filename);
+    const validPath = await managePath.save(file, filename);
 
     if (!validPath)
       throw new ExternalServiceError({

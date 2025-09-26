@@ -1,6 +1,9 @@
+import { InvalidUserError } from "../../../domain/applicationErrors.ts";
 import { ProfileIPictureInterface } from "../../../domain/ProfilePictureRepository.ts";
 import { User } from "../../../domain/User.ts";
 import { UserInterface } from "../../../domain/UserRepository.ts";
+import { UserModel } from "../../../infrastructure/database/models/UserModel.ts";
+import { upsertPicture } from "./profile-picture/create.ts";
 
 type CreateUserParams = {
   user: User;
@@ -9,15 +12,34 @@ type CreateUserParams = {
   profilePictureRepository: ProfileIPictureInterface;
 };
 
-export const createUser = ({
+export const createUser = async ({
   user,
   file,
   userRepository,
   profilePictureRepository,
 }: CreateUserParams) => {
-  const validUser = new User(user);
+  const trx = await UserModel.startTransaction();
 
-  const profilePicture = file;
+  try {
+    const validUser = new User(user);
 
-  return userRepository.create(validUser);
+    const newUser = await userRepository.create(validUser, trx);
+
+    if (!newUser.id)
+      throw new InvalidUserError({ message: "Couldn't create user" });
+
+    const validPicture = await upsertPicture({
+      file,
+      user_id: newUser.id,
+      profilePictureRepository,
+    });
+
+    await trx.commit();
+
+    return { validPicture, newUser };
+  } catch (error) {
+    await trx.rollback();
+
+    throw new InvalidUserError({ message: `Could not create user: ${error}` });
+  }
 };

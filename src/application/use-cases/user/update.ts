@@ -1,39 +1,51 @@
-import { ExternalServiceError } from "../../../domain/applicationErrors.ts";
+import { InvalidUserError } from "../../../domain/applicationErrors.ts";
+import { ProfileIPictureInterface } from "../../../domain/ProfilePictureRepository.ts";
 import { User } from "../../../domain/User.ts";
 import { UserInterface } from "../../../domain/UserRepository.ts";
-import { manageImagePath } from "../../_lib/manageImagePath.ts";
+import { UserModel } from "../../../infrastructure/database/models/UserModel.ts";
+import { upsertPicture } from "./profile-picture/create.ts";
 
 type UpdateUserParams = {
-  file?: Buffer;
   user: User;
+  file?: Buffer;
   userRepository: UserInterface;
+  profilePictureRepository: ProfileIPictureInterface;
 };
 
 export const updateUser = async ({
-  file,
   user,
+  file,
   userRepository,
+  profilePictureRepository,
 }: UpdateUserParams) => {
-  let currentFile = await findProfilePicture();
+  const trx = await UserModel.startTransaction();
 
-  if (file) {
-    const updatedImage = await manageImagePath.replaceImage(
-      file,
-      String(currentFile.id),
-      currentFile.path
+  try {
+    const validUpdatedUser = new User(user);
+
+    const updatedUser = await userRepository.update(validUpdatedUser, trx);
+
+    if (!updatedUser.id)
+      throw new InvalidUserError({ message: "Couldn't create user" });
+
+    let validPicture = await profilePictureRepository.findByUserId(
+      updatedUser.id
     );
 
-    if (!updatedImage)
-      throw new ExternalServiceError({ message: "Cannot delete picture path" });
+    if (file) {
+      validPicture = await upsertPicture({
+        file,
+        user_id: updatedUser.id,
+        profilePictureRepository,
+      });
+    }
 
-    currentFile = updatedImage;
+    await trx.commit();
+
+    return { validPicture, updatedUser };
+  } catch (error) {
+    await trx.rollback();
+
+    throw new InvalidUserError({ message: `Could not create user: ${error}` });
   }
-
-  //TODO - Transaction inside profile picture, where the path is only deleted if the whole transaction is finished
-  const updatedUser = new User({
-    ...user,
-    path: currentFile,
-  });
-
-  return await userRepository.update(updatedUser);
 };
