@@ -12,15 +12,19 @@ type FindUser = {
 };
 export const findUser = async ({ filter }: FindUser) => {
   const { id, username, email } = filter;
-  const foundUser = await UserModel.query().where(function () {
-    if (id) {
-      this.where("id", id);
-    } else if (username) {
-      this.where("username", username);
-    } else if (email) {
-      this.where("email", email);
-    }
-  });
+
+  const query = UserModel.query();
+  if (id !== undefined) {
+    query.where("id", id);
+  } else if (username !== undefined) {
+    query.where("username", username);
+  } else if (email !== undefined) {
+    query.where("email", email);
+  } else {
+    throw new InvalidUserError({ message: "No filter provided" });
+  }
+
+  const foundUser = await query.first();
 
   if (!foundUser) {
     throw new InvalidUserError({ message: "This user doesn't exist" });

@@ -21,9 +21,7 @@ export const findPersonById = (id: number) => {
 
 export const findPersonWithUserId = async (id: number, user_id: number) => {
   try {
-    const person = await PersonModel.query()
-      .where("id", id)
-      .andWhere("user_id", user_id);
+    const person = await PersonModel.query().findOne({ id, user_id });
 
     if (!person)
       throw new InvalidPersonError({

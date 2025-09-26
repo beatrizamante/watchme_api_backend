@@ -21,9 +21,7 @@ export const findVideoById = (id: number) => {
 
 export const findVideoWithUserId = async (id: number, user_id: number) => {
   try {
-    const person = await VideoModel.query()
-      .where("id", id)
-      .andWhere("user_id", user_id);
+    const person = await VideoModel.query().findOne({ id, user_id });
 
     if (!person)
       throw new InvalidVideoError({

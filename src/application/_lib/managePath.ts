@@ -1,5 +1,5 @@
-import path from "path";
-import fs from "fs";
+import fs from "node:fs";
+import path from "node:path";
 import { ExternalServiceError } from "../../domain/applicationErrors.ts";
 
 const uploadDir = path.join(__dirname, "..", "uploads");
