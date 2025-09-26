@@ -15,7 +15,9 @@ export const managePath = {
       await fs.promises.unlink(imagePath);
     } catch (error) {
       throw new ExternalServiceError({
-        message: `There was an error while deleting old image: ${error}`,
+        message: `There was an error while deleting old image: ${
+          error instanceof Error ? error.message : String(error)
+        }`,
       });
     }
   },
