@@ -2,7 +2,6 @@ import { Transaction } from "objection";
 import { ProfilePicture } from "./ProfilePicture.ts";
 
 export interface ProfileIPictureInterface {
-  findById: (id: number) => Promise<ProfilePicture | undefined>;
   findByUserId: (user_id: number) => Promise<ProfilePicture | undefined>;
   upsert: (
     profilePicture: ProfilePicture,

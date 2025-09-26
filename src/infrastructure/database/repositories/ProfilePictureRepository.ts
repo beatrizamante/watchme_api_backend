@@ -3,20 +3,6 @@ import { DatabaseError } from "../../../domain/applicationErrors.ts";
 import { ProfilePictureModel } from "../models/ProfilePictureModel.ts";
 
 export const ProfilePictureRepository = {
-  async findById(id: number) {
-    try {
-      const profilePicture = await ProfilePictureModel.query().findById(id);
-
-      return profilePicture;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Database error";
-
-      throw new DatabaseError({
-        message: `There was an error searching the picture id: ${message}`,
-      });
-    }
-  },
-
   async findByUserId(user_id: number) {
     try {
       const profilePicture = await ProfilePictureModel.query().where(

@@ -19,7 +19,7 @@ class UserModel extends BaseModel {
   email!: string;
   password!: string;
   encrypted_password!: string;
-  role?: Roles;
+  role!: Roles;
   active!: boolean;
 
   static relationMappings: RelationMappings = {
