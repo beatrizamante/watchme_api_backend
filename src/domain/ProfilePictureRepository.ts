@@ -1,4 +1,5 @@
 import { Transaction } from "objection";
+import { ProfilePictureModel } from "../infrastructure/database/models/ProfilePictureModel.ts";
 import { ProfilePicture } from "./ProfilePicture.ts";
 
 export interface ProfileIPictureInterface {
@@ -6,6 +7,6 @@ export interface ProfileIPictureInterface {
   upsert: (
     profilePicture: ProfilePicture,
     trx: Transaction
-  ) => Promise<ProfilePicture>;
+  ) => Promise<ProfilePictureModel>;
   delete: (profilePicture: ProfilePicture, trx: Transaction) => Promise<number>;
 }

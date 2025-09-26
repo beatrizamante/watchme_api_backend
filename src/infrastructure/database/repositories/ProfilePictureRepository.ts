@@ -1,16 +1,16 @@
 import { Transaction } from "objection";
 import { DatabaseError } from "../../../domain/applicationErrors.ts";
+import { ProfileIPictureInterface } from "../../../domain/ProfilePictureRepository.ts";
 import { ProfilePictureModel } from "../models/ProfilePictureModel.ts";
 
-export const ProfilePictureRepository = {
+export class ProfilePictureRepository implements ProfileIPictureInterface {
   async findByUserId(user_id: number) {
     try {
-      const profilePicture = await ProfilePictureModel.query().where(
-        "user_id",
-        user_id
-      );
+      const profilePicture = await ProfilePictureModel.query()
+        .where("user_id", user_id)
+        .first();
 
-      return profilePicture;
+      return profilePicture ?? undefined;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
@@ -18,7 +18,7 @@ export const ProfilePictureRepository = {
         message: `There was an error searching the picture id: ${message}`,
       });
     }
-  },
+  }
 
   async upsert(profilePicture: ProfilePictureModel, trx: Transaction) {
     try {
@@ -34,9 +34,9 @@ export const ProfilePictureRepository = {
         message: `There was an error creating the picture: ${message}`,
       });
     }
-  },
+  }
 
-  async delete(profilePicture: ProfilePictureModel) {
+  async delete(profilePicture: ProfilePictureModel): Promise<number> {
     try {
       const deletedProfilePicture =
         await ProfilePictureModel.query().deleteById(profilePicture.id);
@@ -45,7 +45,9 @@ export const ProfilePictureRepository = {
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error on the database: ${message}`,
+      });
     }
-  },
-};
+  }
+}

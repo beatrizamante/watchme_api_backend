@@ -1,9 +1,6 @@
 import { InvalidPersonError } from "../../../domain/applicationErrors.ts";
 import { PersonInterface } from "../../../domain/PersonRepository.ts";
-import {
-  findPersonById,
-  findPersonWithUserId,
-} from "../../queries/findPerson.ts";
+import { findPersonWithUserId } from "../../queries/findPerson.ts";
 
 type DeletePersonParams = {
   personId: number;

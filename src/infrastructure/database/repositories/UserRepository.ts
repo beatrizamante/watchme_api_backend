@@ -1,8 +1,8 @@
 import { Transaction } from "objection";
 import { DatabaseError } from "../../../domain/applicationErrors.ts";
+import { User } from "../../../domain/User.ts";
 import { UserInterface } from "../../../domain/UserRepository.ts";
 import { UserModel } from "../models/UserModel.ts";
-import { User } from "../../../domain/User.ts";
 
 export class UserRepository implements UserInterface {
   async findById(id: number) {

@@ -1,19 +1,21 @@
-import { ExternalServiceError } from "../../../domain/applicationErrors.ts";
+import {
+  ExternalServiceError,
+  InvalidVideoError,
+} from "../../../domain/applicationErrors.ts";
 import { Video } from "../../../domain/Video.ts";
 import { VideoInterface } from "../../../domain/VideoRepository.ts";
 import { VideoModel } from "../../../infrastructure/database/models/VideoModel.ts";
-import { InvalidVideoError } from "../../../domain/applicationErrors.ts";
 import { managePath } from "../../_lib/managePath.ts";
 
 type CreateVideoParams = {
   video: Buffer;
-  user_id: number;
+  userId: number;
   videoRepository: VideoInterface;
 };
 
 export const createVideo = async ({
   video,
-  user_id,
+  userId,
   videoRepository,
 }: CreateVideoParams) => {
   const trx = await VideoModel.startTransaction();
@@ -26,7 +28,7 @@ export const createVideo = async ({
       throw new ExternalServiceError({ message: "Cannot create path " });
 
     const validVideo = new Video({
-      user_id,
+      user_id: userId,
       path: validPath,
     });
     const createdVideo = videoRepository.create(validVideo, trx);
