@@ -1,9 +1,7 @@
 import { VideoModel } from "../../infrastructure/database/models/VideoModel.ts";
 
-export const findVideos = () => {
-  return VideoModel.query().select();
-};
-
-export const findVideosForUser = (user_id: number) => {
-  return VideoModel.query().where("user_id", user_id);
+export const findVideos = async (user_id?: number) => {
+  const query = VideoModel.query();
+  if (user_id) query.where("user_id", user_id);
+  return await query.select();
 };

@@ -2,33 +2,19 @@ import {
   DatabaseError,
   InvalidVideoError,
 } from "../../domain/applicationErrors.ts";
+import { UserModel } from "../../infrastructure/database/models/UserModel.ts";
 import { VideoModel } from "../../infrastructure/database/models/VideoModel.ts";
+import { Roles } from "../../interfaces/roles.ts";
 
-export const findVideoById = (id: number) => {
+export const findVideo = async (id: number, user_id: number) => {
   try {
+    const user = await UserModel.query().findById(user_id);
     const video = VideoModel.query().findById(id);
 
-    if (!video)
+    if (!video && user?.role !== Roles.ADMIN)
       throw new InvalidVideoError({ message: "This video doesn't exist" });
 
     return video;
-  } catch (error) {
-    throw new DatabaseError({
-      message: `There was an error retrieving this video: ${error}`,
-    });
-  }
-};
-
-export const findVideoWithUserId = async (id: number, user_id: number) => {
-  try {
-    const person = await VideoModel.query().findOne({ id, user_id });
-
-    if (!person)
-      throw new InvalidVideoError({
-        message: "This video doesn't exist for this user",
-      });
-
-    return person;
   } catch (error) {
     throw new DatabaseError({
       message: `There was an error retrieving this video: ${error}`,

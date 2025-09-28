@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { createPerson } from "../../../application/use-cases/person/create.ts";
 import { deletePerson } from "../../../application/use-cases/person/delete.ts";
+import { UnauthorizedError } from "../../../domain/applicationErrors.ts";
 import { PersonRepository } from "../../../infrastructure/database/repositories/PersonRepository.ts";
 
 const personRepository = new PersonRepository();
@@ -17,6 +18,9 @@ export const personController = {
         details: parseResult.error.issues,
       });
     }
+
+    if (!userId)
+      throw new UnauthorizedError({ message: "User non existent or invalid" });
 
     const file: Buffer = (request.body as { file: Buffer }).file;
 
@@ -57,6 +61,9 @@ export const personController = {
         details: parseResult.error.issues,
       });
     }
+
+    if (!userId)
+      throw new UnauthorizedError({ message: "User non existent or invalid" });
 
     const result = await deletePerson({
       personId: parseResult.data.id,
