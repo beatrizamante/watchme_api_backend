@@ -1,5 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
+import { findPeople } from "../../../application/queries/findPeople.ts";
+import { findPerson } from "../../../application/queries/findPerson.ts";
 import { createPerson } from "../../../application/use-cases/person/create.ts";
 import { deletePerson } from "../../../application/use-cases/person/delete.ts";
 import { UnauthorizedError } from "../../../domain/applicationErrors.ts";
@@ -9,8 +11,9 @@ const personRepository = new PersonRepository();
 
 export const personController = {
   create: async (request: FastifyRequest, reply: FastifyReply) => {
+    // biome-ignore lint/style/noNonNullAssertion: ""
+    const userId = request.userId!;
     const parseResult = CreatePersonInput.safeParse(request.body);
-    const userId = request.userId;
 
     if (!parseResult.success) {
       return reply.status(400).send({
@@ -18,9 +21,6 @@ export const personController = {
         details: parseResult.error.issues,
       });
     }
-
-    if (!userId)
-      throw new UnauthorizedError({ message: "User non existent or invalid" });
 
     const file: Buffer = (request.body as { file: Buffer }).file;
 
@@ -52,8 +52,9 @@ export const personController = {
     return reply.status(201).send(result);
   },
   delete: async (request: FastifyRequest, reply: FastifyReply) => {
+    // biome-ignore lint/style/noNonNullAssertion: ""
+    const userId = request.userId!;
     const parseResult = DeletePersonInput.safeParse(request.body);
-    const userId = request.userId;
 
     if (!parseResult.success) {
       return reply.status(400).send({
@@ -61,9 +62,6 @@ export const personController = {
         details: parseResult.error.issues,
       });
     }
-
-    if (!userId)
-      throw new UnauthorizedError({ message: "User non existent or invalid" });
 
     const result = await deletePerson({
       personId: parseResult.data.id,
@@ -73,8 +71,31 @@ export const personController = {
 
     return reply.status(201).send(result);
   },
-  list: async (request: FastifyRequest, reply: FastifyReply) => {},
-  find: async (request: FastifyRequest, reply: FastifyReply) => {},
+  list: async (request: FastifyRequest, reply: FastifyReply) => {
+    // biome-ignore lint/style/noNonNullAssertion: ""
+    const userId = request.userId!;
+
+    const people = await findPeople(userId);
+
+    return reply.status(301).send(people);
+  },
+
+  find: async (request: FastifyRequest, reply: FastifyReply) => {
+    // biome-ignore lint/style/noNonNullAssertion: ""
+    const userId = request.userId!;
+    const parseResult = FindPerson.safeParse(request.body);
+
+    if (!parseResult.success) {
+      return reply.status(400).send({
+        error: "Invalid input",
+        details: parseResult.error.issues,
+      });
+    }
+
+    const person = await findPerson(parseResult.data.id, userId);
+
+    return reply.status(301).send(person);
+  },
 };
 
 const CreatePersonInput = z.object({
@@ -82,5 +103,9 @@ const CreatePersonInput = z.object({
 });
 
 const DeletePersonInput = z.object({
+  id: z.number().nonnegative().nonoptional(),
+});
+
+const FindPerson = z.object({
   id: z.number().nonnegative().nonoptional(),
 });

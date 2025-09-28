@@ -17,13 +17,10 @@ export const userController = {
     const profilePicture = (request.body as { file: Buffer }).file;
 
     if (!parseResult.success) {
-      return reply
-        .status(400)
-        .send({
-          error: "Invalid input",
-          details: parseResult.error.issues,
-        })
-        .redirect("/login");
+      return reply.status(400).send({
+        error: "Invalid input",
+        details: parseResult.error.issues,
+      });
     }
 
     const { username, email, password } = parseResult.data;
@@ -45,9 +42,10 @@ export const userController = {
   },
 
   update: async (request: FastifyRequest, reply: FastifyReply) => {
+    // biome-ignore lint/style/noNonNullAssertion: ""
+    const userId = request.userId!;
     const parseResult = UpdateUserInput.safeParse(request.body);
     const profilePicture = (request.body as { file: Buffer }).file;
-    const userId = request.userId;
 
     if (!parseResult.success) {
       return reply.status(400).send({
@@ -57,13 +55,6 @@ export const userController = {
     }
 
     const { username, email, password, role, active } = parseResult.data;
-
-    if (!userId) {
-      return reply
-        .status(400)
-        .send({ message: "You must be logged in to access this resource" })
-        .redirect("/login");
-    }
 
     const updateData: any = {};
     if (username !== undefined) updateData.username = username;
@@ -83,8 +74,9 @@ export const userController = {
     return reply.status(200).send(result);
   },
   list: async (request: FastifyRequest, reply: FastifyReply) => {
+    // biome-ignore lint/style/noNonNullAssertion: ""
+    const userId = request.userId!;
     const parseResult = FindUsersInput.safeParse(request.body);
-    const userId = request.userId;
 
     if (!userId) {
       return reply
@@ -108,15 +100,9 @@ export const userController = {
     return reply.status(301).send(users);
   },
   find: async (request: FastifyRequest, reply: FastifyReply) => {
+    // biome-ignore lint/style/noNonNullAssertion: ""
+    const userId = request.userId!;
     const parseResult = FindUserInput.safeParse(request.body);
-    const userId = request.userId;
-
-    if (!userId) {
-      return reply
-        .status(400)
-        .send({ message: "You must be logged in to access this resource" })
-        .redirect("/login");
-    }
 
     if (!parseResult.success) {
       return reply.status(400).send({
