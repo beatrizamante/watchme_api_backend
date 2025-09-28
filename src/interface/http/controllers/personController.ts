@@ -18,7 +18,7 @@ export const personController = {
       });
     }
 
-    const file = (request.body as any).file;
+    const file: Buffer = (request.body as { file: Buffer }).file;
 
     const embeddingResponse = await fetch("http://localhost:5000/embed", {
       method: "POST",
@@ -34,7 +34,7 @@ export const personController = {
         .send({ error: "Failed to get embedding Morgan" });
     }
 
-    const embedding = await embeddingResponse.json();
+    const embedding = (await embeddingResponse.json()) as Buffer;
 
     const result = await createPerson({
       person: {

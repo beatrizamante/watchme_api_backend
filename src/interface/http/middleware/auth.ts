@@ -34,4 +34,41 @@ export const authentication = {
     reply.clearCookie("token", { path: "/" });
     return reply.send({ message: "Logout" });
   },
+
+  isAuthenticated: async (request: FastifyRequest, reply: FastifyReply) => {
+    try {
+      const { token } = request.cookies;
+
+      if (!token) {
+        return reply
+          .status(401)
+          .send({ message: "Unauthorized, please, log in first" })
+          .redirect("/login");
+      }
+
+      const { userId } = jwt.verify(token, config.secret.sessionSecret) as {
+        userId: number;
+      };
+
+      const user = await UserModel.query().findById(userId);
+
+      if (!user) {
+        return reply
+          .status(401)
+          .send({
+            message: "This user doesn't exist. Please, log in again",
+          })
+          .redirect("/login");
+      }
+
+      request.userId = userId;
+
+      return reply.status(300);
+    } catch (error) {
+      console.error(`Error loging: ${error}`);
+      throw new UnathenticatedError({
+        message: "There was an error authenticating the user",
+      });
+    }
+  },
 };
