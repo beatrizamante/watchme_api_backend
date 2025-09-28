@@ -9,9 +9,20 @@ import { Roles } from "../../interfaces/roles.ts";
 export const findPerson = async (id: number, user_id: number) => {
   try {
     const user = await UserModel.query().findById(user_id);
-    const person = await PersonModel.query().findOne({ id, user_id });
 
-    if (!person || user?.role !== Roles.ADMIN)
+    if (user?.role === Roles.ADMIN) {
+      const person = await PersonModel.query().findById(id);
+
+      if (!person)
+        throw new InvalidPersonError({
+          message: "This person doesn't exist for this user",
+        });
+
+      return person;
+    }
+
+    const person = await PersonModel.query().findOne({ id, user_id });
+    if (!person)
       throw new InvalidPersonError({
         message: "This person doesn't exist for this user",
       });

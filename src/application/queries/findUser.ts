@@ -1,17 +1,24 @@
-import { InvalidUserError } from "../../domain/applicationErrors.ts";
+import {
+  InvalidUserError,
+  UnauthorizedError,
+} from "../../domain/applicationErrors.ts";
 import { UserModel } from "../../infrastructure/database/models/UserModel.ts";
-import { UserRepository } from "../../infrastructure/database/repositories/UserRepository.ts";
+import { Roles } from "../../interfaces/roles.ts";
 
 type FindUser = {
-  filter: {
-    id?: number;
-    username?: string;
-    email?: string;
-  };
-  userRepository: UserRepository;
+  id?: number;
+  username?: string;
+  email?: string;
+  user_id: number;
 };
-export const findUser = async ({ filter }: FindUser) => {
-  const { id, username, email } = filter;
+
+export const findUser = async ({ id, username, email, user_id }: FindUser) => {
+  const user = await UserModel.query().findById(user_id);
+
+  if (!user || user.role === Roles.ADMIN)
+    throw new UnauthorizedError({
+      message: "User cannot access this resource",
+    });
 
   const query = UserModel.query();
   if (id !== undefined) {

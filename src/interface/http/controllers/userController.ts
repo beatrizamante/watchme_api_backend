@@ -1,5 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import z from "zod/v4";
+import { findUser } from "../../../application/queries/findUser.ts";
+import { findUsers } from "../../../application/queries/findUsers.ts";
 import { createUser } from "../../../application/use-cases/user/create.ts";
 import { updateUser } from "../../../application/use-cases/user/update.ts";
 import { ProfilePictureRepository } from "../../../infrastructure/database/repositories/ProfilePictureRepository.ts";
@@ -12,13 +14,16 @@ const profilePictureRepository = new ProfilePictureRepository();
 export const userController = {
   create: async (request: FastifyRequest, reply: FastifyReply) => {
     const parseResult = CreateUserInput.safeParse(request.body);
-    const profilePicture = (request.body as any).file;
+    const profilePicture = (request.body as { file: Buffer }).file;
 
     if (!parseResult.success) {
-      return reply.status(400).send({
-        error: "Invalid input",
-        details: parseResult.error.issues,
-      });
+      return reply
+        .status(400)
+        .send({
+          error: "Invalid input",
+          details: parseResult.error.issues,
+        })
+        .redirect("/login");
     }
 
     const { username, email, password } = parseResult.data;
@@ -41,7 +46,7 @@ export const userController = {
 
   update: async (request: FastifyRequest, reply: FastifyReply) => {
     const parseResult = UpdateUserInput.safeParse(request.body);
-    const profilePicture = (request.body as any).file;
+    const profilePicture = (request.body as { file: Buffer }).file;
     const userId = request.userId;
 
     if (!parseResult.success) {
@@ -56,7 +61,8 @@ export const userController = {
     if (!userId) {
       return reply
         .status(400)
-        .send({ error: "User ID is required for update" });
+        .send({ message: "You must be logged in to access this resource" })
+        .redirect("/login");
     }
 
     const updateData: any = {};
@@ -76,8 +82,60 @@ export const userController = {
 
     return reply.status(200).send(result);
   },
-  list: async (request: FastifyRequest, reply: FastifyReply) => {},
-  find: async (request: FastifyRequest, reply: FastifyReply) => {},
+  list: async (request: FastifyRequest, reply: FastifyReply) => {
+    const parseResult = FindUsersInput.safeParse(request.body);
+    const userId = request.userId;
+
+    if (!userId) {
+      return reply
+        .status(400)
+        .send({ message: "You must be logged in to access this resource" })
+        .redirect("/login");
+    }
+
+    if (!parseResult.success) {
+      return reply.status(400).send({
+        error: "Invalid input",
+        details: parseResult.error.issues,
+      });
+    }
+
+    const users = await findUsers({
+      active: parseResult.data.active,
+      user_id: userId,
+    });
+
+    return reply.status(301).send(users);
+  },
+  find: async (request: FastifyRequest, reply: FastifyReply) => {
+    const parseResult = FindUserInput.safeParse(request.body);
+    const userId = request.userId;
+
+    if (!userId) {
+      return reply
+        .status(400)
+        .send({ message: "You must be logged in to access this resource" })
+        .redirect("/login");
+    }
+
+    if (!parseResult.success) {
+      return reply.status(400).send({
+        error: "Invalid input",
+        details: parseResult.error.issues,
+      });
+    }
+
+    const { id, username, email } = parseResult.data;
+
+    const user = await findUser({
+      id,
+      username,
+      email,
+      user_id: userId,
+    });
+
+    return reply.status(301).send(user);
+  },
 };
 
 const CreateUserInput = z.object({
@@ -91,5 +149,15 @@ const UpdateUserInput = z.object({
   email: z.email().nonempty().optional(),
   password: z.string().nonempty().optional(),
   role: z.enum(["ADMIN", "USER"]).optional(),
+  active: z.boolean().optional(),
+});
+
+const FindUserInput = z.object({
+  id: z.number().nonnegative().optional(),
+  username: z.string().nonempty().optional(),
+  email: z.string().nonempty().optional(),
+});
+
+const FindUsersInput = z.object({
   active: z.boolean().optional(),
 });
