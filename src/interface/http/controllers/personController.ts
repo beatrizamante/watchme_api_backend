@@ -2,18 +2,14 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { findPeople } from "../../../application/queries/findPeople.ts";
 import { findPerson } from "../../../application/queries/findPerson.ts";
-import { createPerson } from "../../../application/use-cases/person/create.ts";
-import { deletePerson } from "../../../application/use-cases/person/delete.ts";
-import { UnauthorizedError } from "../../../domain/applicationErrors.ts";
-import { PersonRepository } from "../../../infrastructure/database/repositories/PersonRepository.ts";
-
-const personRepository = new PersonRepository();
+import { createRequestScopedContainer } from "../_lib/index.ts";
 
 export const personController = {
   create: async (request: FastifyRequest, reply: FastifyReply) => {
-    // biome-ignore lint/style/noNonNullAssertion: ""
+    // biome-ignore lint/style/noNonNullAssertion: "The user is always being checked through an addHook at the request level"
     const userId = request.userId!;
     const parseResult = CreatePersonInput.safeParse(request.body);
+    const { createPerson } = createRequestScopedContainer(request);
 
     if (!parseResult.success) {
       return reply.status(400).send({
@@ -46,15 +42,15 @@ export const personController = {
         user_id: userId,
         embedding,
       },
-      personRepository,
     });
 
     return reply.status(201).send(result);
   },
   delete: async (request: FastifyRequest, reply: FastifyReply) => {
-    // biome-ignore lint/style/noNonNullAssertion: ""
+    // biome-ignore lint/style/noNonNullAssertion: "The user is always being checked through an addHook at the request level"
     const userId = request.userId!;
     const parseResult = DeletePersonInput.safeParse(request.query);
+    const { deletePerson } = createRequestScopedContainer(request);
 
     if (!parseResult.success) {
       return reply.status(400).send({
@@ -66,13 +62,12 @@ export const personController = {
     const result = await deletePerson({
       personId: parseResult.data.id,
       userId,
-      personRepository,
     });
 
     return reply.status(201).send(result);
   },
   list: async (request: FastifyRequest, reply: FastifyReply) => {
-    // biome-ignore lint/style/noNonNullAssertion: ""
+    // biome-ignore lint/style/noNonNullAssertion: "The user is always being checked through an addHook at the request level"
     const userId = request.userId!;
 
     const people = await findPeople(userId);
@@ -81,7 +76,7 @@ export const personController = {
   },
 
   find: async (request: FastifyRequest, reply: FastifyReply) => {
-    // biome-ignore lint/style/noNonNullAssertion: ""
+    // biome-ignore lint/style/noNonNullAssertion: "The user is always being checked through an addHook at the request level"
     const userId = request.userId!;
     const parseResult = FindPerson.safeParse(request.query);
 
