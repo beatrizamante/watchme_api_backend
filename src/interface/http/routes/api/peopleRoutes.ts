@@ -1,7 +1,10 @@
 import type { FastifyInstance } from "fastify";
 import { personController } from "../../controllers/personController.ts";
+import { authentication } from "../../middleware/auth.ts";
 
 export function peopleApiRoutes(fastify: FastifyInstance) {
+  fastify.addHook("preValidation", authentication.isAuthenticated);
+
   fastify.get(
     "/people",
     {
@@ -36,11 +39,17 @@ export function peopleApiRoutes(fastify: FastifyInstance) {
       schema: {
         summary: "Create new person",
         tags: ["Person"],
+        consumes: ["multipart/form-data"],
         body: {
           type: "object",
           required: ["name"],
           properties: {
             name: { type: "string" },
+            picture: {
+              type: "string",
+              format: "binary",
+              description: "Person picture file",
+            },
           },
         },
       },
@@ -54,6 +63,12 @@ export function peopleApiRoutes(fastify: FastifyInstance) {
       schema: {
         summary: "Delete person",
         tags: ["People"],
+        querystring: {
+          type: "object",
+          properties: {
+            id: { type: "number" },
+          },
+        },
       },
     },
     personController.delete

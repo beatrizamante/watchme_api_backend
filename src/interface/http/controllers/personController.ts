@@ -54,7 +54,7 @@ export const personController = {
   delete: async (request: FastifyRequest, reply: FastifyReply) => {
     // biome-ignore lint/style/noNonNullAssertion: ""
     const userId = request.userId!;
-    const parseResult = DeletePersonInput.safeParse(request.body);
+    const parseResult = DeletePersonInput.safeParse(request.query);
 
     if (!parseResult.success) {
       return reply.status(400).send({
@@ -83,7 +83,7 @@ export const personController = {
   find: async (request: FastifyRequest, reply: FastifyReply) => {
     // biome-ignore lint/style/noNonNullAssertion: ""
     const userId = request.userId!;
-    const parseResult = FindPerson.safeParse(request.body);
+    const parseResult = FindPerson.safeParse(request.query);
 
     if (!parseResult.success) {
       return reply.status(400).send({

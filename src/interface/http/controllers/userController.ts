@@ -76,7 +76,7 @@ export const userController = {
   list: async (request: FastifyRequest, reply: FastifyReply) => {
     // biome-ignore lint/style/noNonNullAssertion: ""
     const userId = request.userId!;
-    const parseResult = FindUsersInput.safeParse(request.body);
+    const parseResult = FindUsersInput.safeParse(request.query);
 
     if (!userId) {
       return reply

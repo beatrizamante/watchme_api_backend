@@ -19,12 +19,9 @@ export const deletePicture = async ({
   const trx = await ProfilePictureModel.startTransaction();
 
   try {
-    const deletePath = managePath.delete(profilePicture.path);
-
-    if (!deletePath)
-      throw new ExternalServiceError({ message: "Cannot delete picture path" });
-
     const isDeleted = profilePictureRepository.delete(profilePicture, trx);
+
+    await managePath.delete(profilePicture.path);
 
     await trx.commit();
 

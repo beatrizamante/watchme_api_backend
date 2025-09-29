@@ -4,18 +4,17 @@ import {
 } from "../../domain/applicationErrors.ts";
 import { UserModel } from "../../infrastructure/database/models/UserModel.ts";
 import { VideoModel } from "../../infrastructure/database/models/VideoModel.ts";
-import { Roles } from "../../interfaces/roles.ts";
 
 export const findVideo = async (id: number, user_id: number) => {
   try {
     const user = await UserModel.query().findById(user_id);
 
-    if (user?.role === Roles.ADMIN) {
+    if (user?.isAdmin()) {
       const video = await VideoModel.query().findById(id);
 
       if (!video)
         throw new InvalidVideoError({
-          message: "This person doesn't exist for this user",
+          message: "This video doesn't exist",
         });
 
       return video;

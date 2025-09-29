@@ -1,7 +1,10 @@
 import type { FastifyInstance } from "fastify";
 import { videoController } from "../../controllers/videoController.ts";
+import { authentication } from "../../middleware/auth.ts";
 
 export function videosApiRoutes(fastify: FastifyInstance) {
+  fastify.addHook("preValidation", authentication.isAuthenticated);
+
   fastify.get(
     "/videos",
     {
@@ -36,14 +39,15 @@ export function videosApiRoutes(fastify: FastifyInstance) {
       schema: {
         summary: "Create new video",
         tags: ["Videos"],
+        consumes: ["multipart/form-data"],
         body: {
           type: "object",
-          required: ["name", "stock", "price", "image_path"],
           properties: {
-            name: { type: "string" },
-            description: { type: "string" },
-            stock: { type: "integer" },
-            price: { type: "integer" },
+            video: {
+              type: "string",
+              format: "binary",
+              description: "Video file",
+            },
           },
         },
       },

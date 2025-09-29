@@ -15,12 +15,13 @@ type FindUser = {
 export const findUser = async ({ id, username, email, user_id }: FindUser) => {
   const user = await UserModel.query().findById(user_id);
 
-  if (!user || user.role === Roles.ADMIN)
+  if (!user || (!user.isAdmin() && user_id !== user.id))
     throw new UnauthorizedError({
       message: "User cannot access this resource",
     });
 
   const query = UserModel.query();
+
   if (id !== undefined) {
     query.where("id", id);
   } else if (username !== undefined) {

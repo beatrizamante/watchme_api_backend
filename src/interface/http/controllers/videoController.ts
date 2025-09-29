@@ -25,7 +25,7 @@ export const videoController = {
   delete: async (request: FastifyRequest, reply: FastifyReply) => {
     // biome-ignore lint/style/noNonNullAssertion: ""
     const userId = request.userId!;
-    const parseResult = DeleteVideoInput.safeParse(request.body);
+    const parseResult = DeleteVideoInput.safeParse(request.query);
 
     if (!parseResult.success) {
       return reply.status(400).send({
@@ -53,7 +53,7 @@ export const videoController = {
   find: async (request: FastifyRequest, reply: FastifyReply) => {
     // biome-ignore lint/style/noNonNullAssertion: ""
     const userId = request.userId!;
-    const parseResult = FindVideoInput.safeParse(request.body);
+    const parseResult = FindVideoInput.safeParse(request.query);
 
     if (!parseResult.success) {
       return reply.status(400).send({

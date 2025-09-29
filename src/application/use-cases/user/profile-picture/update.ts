@@ -24,13 +24,6 @@ export const updatePicture = async ({
   let validPicture: ProfilePicture;
 
   try {
-    const isDeleted = managePath.delete(profilePicture.path);
-
-    if (!isDeleted)
-      throw new InvalidProfilePictureError({
-        message: "Could not deleted picture",
-      });
-
     const filename = crypto.randomUUID();
     const validPath = await managePath.save(file, filename);
 
@@ -45,6 +38,8 @@ export const updatePicture = async ({
     });
 
     const updatedPic = await profilePictureRepository.upsert(validPicture, trx);
+
+    await managePath.delete(profilePicture.path);
 
     await trx.commit();
 

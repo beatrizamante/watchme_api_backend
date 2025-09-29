@@ -1,6 +1,6 @@
 import { InvalidPersonError } from "../../../domain/applicationErrors.ts";
 import { PersonInterface } from "../../../domain/PersonRepository.ts";
-import { findPersonWithUserId } from "../../queries/findPerson.ts";
+import { findPerson } from "../../queries/findPerson.ts";
 
 type DeletePersonParams = {
   personId: number;
@@ -13,7 +13,7 @@ export const deletePerson = async ({
   userId,
   personRepository,
 }: DeletePersonParams) => {
-  const validPerson = await findPersonWithUserId(personId, userId);
+  const validPerson = await findPerson(personId, userId);
 
   if (!validPerson)
     throw new InvalidPersonError({
