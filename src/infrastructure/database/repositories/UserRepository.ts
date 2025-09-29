@@ -46,7 +46,7 @@ export class UserRepository implements UserInterface {
     }
   }
 
-  async create(user: User, trx: Transaction): Promise<User> {
+  async create(user: User, trx: Transaction): Promise<Omit<User, "password">> {
     try {
       const createdUser = await UserModel.query(trx).insertAndFetch(user);
 
@@ -54,7 +54,6 @@ export class UserRepository implements UserInterface {
         id: createdUser.id,
         username: createdUser.username,
         email: createdUser.email,
-        password: createdUser.password,
         active: createdUser.active,
         role: createdUser.role,
       };
@@ -67,7 +66,7 @@ export class UserRepository implements UserInterface {
     }
   }
 
-  async update(user: User, trx: Transaction): Promise<User> {
+  async update(user: User, trx: Transaction): Promise<Omit<User, "password">> {
     try {
       if (!user.id)
         throw new DatabaseError({ message: "Cannot update inexistent user" });
@@ -91,7 +90,6 @@ export class UserRepository implements UserInterface {
         id: updatedUser.id,
         username: updatedUser.username,
         email: updatedUser.email,
-        password: updatedUser.password,
         active: updatedUser.active,
         role: updatedUser.role,
       };

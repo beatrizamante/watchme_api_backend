@@ -11,7 +11,7 @@ type Dependencies = {
 
 type CreateUserParams = {
   user: User;
-  file: Buffer;
+  file?: Buffer;
 };
 
 export const makeCreateUser =
@@ -27,10 +27,13 @@ export const makeCreateUser =
       if (!newUser.id)
         throw new InvalidUserError({ message: "Couldn't create user" });
 
-      const validPicture = await upsertPicture({
-        file,
-        user_id: newUser.id,
-      });
+      let validPicture = {};
+      if (file) {
+        validPicture = await upsertPicture({
+          file,
+          user_id: newUser.id,
+        });
+      }
 
       await trx.commit();
 

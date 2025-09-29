@@ -80,7 +80,7 @@ export const userController = {
       user_id: userId,
     });
 
-    return reply.status(301).send(users);
+    return reply.status(302).send(users);
   },
   find: async (request: FastifyRequest, reply: FastifyReply) => {
     // biome-ignore lint/style/noNonNullAssertion: "The user is always being checked through an addHook at the request level"
@@ -103,7 +103,7 @@ export const userController = {
       user_id: userId,
     });
 
-    return reply.status(301).send(user);
+    return reply.status(302).send(user);
   },
 };
 

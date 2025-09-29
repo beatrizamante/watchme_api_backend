@@ -2,6 +2,7 @@ import { FastifyReply, FastifyRequest } from "fastify";
 import { z } from "zod";
 import { findPeople } from "../../../application/queries/findPeople.ts";
 import { findPerson } from "../../../application/queries/findPerson.ts";
+import { ExternalServiceError } from "../../../domain/applicationErrors.ts";
 import { createRequestScopedContainer } from "../_lib/index.ts";
 
 export const personController = {
@@ -29,9 +30,7 @@ export const personController = {
     });
 
     if (!embeddingResponse.ok) {
-      return reply
-        .status(502)
-        .send({ error: "Failed to get embedding Morgan" });
+      throw new ExternalServiceError({ message: "Cannot process request " });
     }
 
     const embedding = (await embeddingResponse.json()) as Buffer;
@@ -64,7 +63,7 @@ export const personController = {
       userId,
     });
 
-    return reply.status(201).send(result);
+    return reply.status(203).send(result);
   },
   list: async (request: FastifyRequest, reply: FastifyReply) => {
     // biome-ignore lint/style/noNonNullAssertion: "The user is always being checked through an addHook at the request level"
@@ -72,7 +71,7 @@ export const personController = {
 
     const people = await findPeople(userId);
 
-    return reply.status(301).send(people);
+    return reply.status(302).send(people);
   },
 
   find: async (request: FastifyRequest, reply: FastifyReply) => {
@@ -89,7 +88,7 @@ export const personController = {
 
     const person = await findPerson(parseResult.data.id, userId);
 
-    return reply.status(301).send(person);
+    return reply.status(302).send(person);
   },
 };
 

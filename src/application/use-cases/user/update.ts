@@ -27,7 +27,7 @@ export const makeUpdateUser =
       const updatedUser = await userRepository.update(validUpdatedUser, trx);
 
       if (!updatedUser.id)
-        throw new InvalidUserError({ message: "Couldn't create user" });
+        throw new InvalidUserError({ message: "Couldn't update user" });
 
       let validPicture = await profilePictureRepository.findByUserId(
         updatedUser.id

@@ -9,7 +9,7 @@ export function usersApiRoutes(fastify: FastifyInstance) {
     "/users",
     {
       schema: {
-        summary: "Find user",
+        summary: "List all users",
         tags: ["Users"],
       },
     },
@@ -20,7 +20,7 @@ export function usersApiRoutes(fastify: FastifyInstance) {
     "/users",
     {
       schema: {
-        summary: "Find user",
+        summary: "Find a specific user",
         tags: ["Users"],
         querystring: {
           type: "object",
@@ -39,7 +39,7 @@ export function usersApiRoutes(fastify: FastifyInstance) {
     "/users",
     {
       schema: {
-        summary: "Create new user",
+        summary: "Create a new user",
         tags: ["Users"],
         consumes: ["multipart/form-data"],
         body: {
@@ -56,18 +56,37 @@ export function usersApiRoutes(fastify: FastifyInstance) {
             },
           },
         },
+        examples: [
+          {
+            email: "beatriz@amante.com",
+            username: "beamante",
+            password: "abc123",
+          },
+        ],
       },
     },
     userController.create
   );
 
   fastify.patch(
-    "/user",
+    "/users",
     {
       schema: {
-        summary: "Update user",
+        summary: "Update a user",
         tags: ["Users"],
-        body: {},
+        body: {
+          type: "object",
+          properties: {
+            email: { type: "string", format: "email" },
+            username: { type: "string" },
+            password: { type: "string", minLength: 6 },
+            profilePicture: {
+              type: "string",
+              format: "binary",
+              description: "User profile picture",
+            },
+          },
+        },
       },
     },
     userController.update

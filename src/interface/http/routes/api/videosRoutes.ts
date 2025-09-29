@@ -9,7 +9,7 @@ export function videosApiRoutes(fastify: FastifyInstance) {
     "/videos",
     {
       schema: {
-        summary: "Find videos",
+        summary: "List all videos in the user's account",
         tags: ["Videos"],
       },
     },
@@ -20,7 +20,7 @@ export function videosApiRoutes(fastify: FastifyInstance) {
     "/video",
     {
       schema: {
-        summary: "Find video",
+        summary: "Find a specific video",
         tags: ["Videos"],
         querystring: {
           type: "object",
@@ -37,7 +37,7 @@ export function videosApiRoutes(fastify: FastifyInstance) {
     "/video",
     {
       schema: {
-        summary: "Create new video",
+        summary: "Create a new video",
         tags: ["Videos"],
         consumes: ["multipart/form-data"],
         body: {
@@ -61,6 +61,12 @@ export function videosApiRoutes(fastify: FastifyInstance) {
       schema: {
         summary: "Delete video",
         tags: ["Videos"],
+        querystring: {
+          type: "object",
+          properties: {
+            id: { type: "number" },
+          },
+        },
       },
     },
     videoController.delete

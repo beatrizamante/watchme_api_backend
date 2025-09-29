@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { userController } from "../controllers/userController.ts";
 import { authentication } from "../middleware/auth.ts";
 
 export function authRoute(fastify: FastifyInstance) {
@@ -36,5 +37,32 @@ export function authRoute(fastify: FastifyInstance) {
       },
     },
     authentication.logout
+  );
+
+  fastify.post(
+    "/register",
+    {
+      schema: {
+        summary: "Register new user",
+        tags: ["Login"],
+        body: {
+          type: "object",
+          required: ["email", "username", "password"],
+          properties: {
+            email: { type: "string", format: "email" },
+            username: { type: "string" },
+            password: { type: "string", minLength: 6 },
+          },
+        },
+        examples: [
+          {
+            email: "beatriz@amante.com",
+            username: "beamante",
+            password: "abc123",
+          },
+        ],
+      },
+    },
+    userController.create
   );
 }

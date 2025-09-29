@@ -9,7 +9,7 @@ export function peopleApiRoutes(fastify: FastifyInstance) {
     "/people",
     {
       schema: {
-        summary: "Find people",
+        summary: "List all people's embeddings in the user's account",
         tags: ["People"],
       },
     },
@@ -17,10 +17,10 @@ export function peopleApiRoutes(fastify: FastifyInstance) {
   );
 
   fastify.get(
-    "/person",
+    "/people",
     {
       schema: {
-        summary: "Find person",
+        summary: "Find a specific person",
         tags: ["People"],
         querystring: {
           type: "object",
@@ -34,10 +34,10 @@ export function peopleApiRoutes(fastify: FastifyInstance) {
   );
 
   fastify.post(
-    "/person",
+    "/people",
     {
       schema: {
-        summary: "Create new person",
+        summary: "Create new person's embedding",
         tags: ["Person"],
         consumes: ["multipart/form-data"],
         body: {
@@ -52,13 +52,18 @@ export function peopleApiRoutes(fastify: FastifyInstance) {
             },
           },
         },
+        examples: [
+          {
+            name: "Beatriz",
+          },
+        ],
       },
     },
     personController.create
   );
 
   fastify.delete(
-    "/person",
+    "/people",
     {
       schema: {
         summary: "Delete person",

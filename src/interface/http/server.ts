@@ -6,6 +6,9 @@ import Fastify from "fastify";
 
 import { config } from "../../config.ts";
 import { errorPlugin } from "./error/errorHandler.ts";
+import { peopleApiRoutes } from "./routes/api/peopleRoutes.ts";
+import { usersApiRoutes } from "./routes/api/usersRoutes.ts";
+import { videosApiRoutes } from "./routes/api/videosRoutes.ts";
 
 const makeServer = async () => {
   const server = Fastify({ logger: config.http.logger[config.env] });
@@ -42,6 +45,10 @@ const makeServer = async () => {
   server.get("/docs-redirect", async (_request, reply) => {
     return reply.redirect("/docs", 301);
   });
+
+  server.register(peopleApiRoutes);
+  server.register(usersApiRoutes);
+  server.register(videosApiRoutes);
 
   return server;
 };

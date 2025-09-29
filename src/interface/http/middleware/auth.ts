@@ -35,7 +35,7 @@ export const authentication = {
     return reply.send({ message: "Logout" });
   },
 
-  isAuthenticated: async (request: FastifyRequest, reply: FastifyReply) => {
+  isAuthenticated: async (request: FastifyRequest, _: FastifyReply) => {
     try {
       const { token } = request.cookies;
 
