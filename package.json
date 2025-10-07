@@ -3,7 +3,13 @@
   "version": "1.0.0",
   "description": "WatchMe API is an API to interact with the CNN 'Watch Me', connecting the Machine Learning end of the program with a user UI in React.",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsx watch src/index.ts",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "db:create:dev": "createdbjs watchme_dev --user=postgres --password=postgres --host=127.0.0.1",
+    "db": "tsx ./node_modules/knex/bin/cli.js",
+    "db:migrate:dev": "npm run db migrate:latest",
+    "db:seed:dev": "npm run db seed:run",
+    "db:rollback:dev": "npm run db migrate:rollback"
   },
   "bugs": {
     "url": "https://github.com/beatrizamante/watchme_api_backend/issues"
@@ -19,11 +25,15 @@
   "type": "module",
   "packageManager": "pnpm@10.14.0",
   "dependencies": {
+    "@fastify/cookie": "^11.0.2",
+    "bcryptjs": "^3.0.2",
     "dotenv": "^17.2.1",
     "fastify": "^5.4.0",
     "knex": "^3.1.0",
     "objection": "^3.1.5",
     "pg": "^8.16.3",
+    "pgtools": "^1.0.1",
+    "pino": "^9.9.0",
     "zod": "^4.0.15"
   },
   "devDependencies": {

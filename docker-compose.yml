@@ -1,0 +1,9 @@
+services:
+  db:
+    container_name: watchme-postgres
+    image: postgres
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_PASSWORD: postgres
