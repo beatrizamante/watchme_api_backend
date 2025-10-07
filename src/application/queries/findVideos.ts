@@ -1,9 +1,12 @@
+import { UserModel } from "../../infrastructure/database/models/UserModel.ts";
 import { VideoModel } from "../../infrastructure/database/models/VideoModel.ts";
 
-export const findVideos = () => {
-  return VideoModel.query().select();
-};
+export const findVideos = async (user_id: number) => {
+  const user = await UserModel.query().findById(user_id);
 
-export const findVideosForUser = (user_id: number) => {
-  return VideoModel.query().where("user_id", user_id);
+  if (user?.isAdmin()) {
+    return await VideoModel.query().select();
+  }
+
+  return await VideoModel.query().where("user_id", user_id);
 };

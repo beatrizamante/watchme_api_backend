@@ -1,9 +1,23 @@
+import { UnauthorizedError } from "../../domain/applicationErrors.ts";
 import { UserModel } from "../../infrastructure/database/models/UserModel.ts";
 
-export const findUsers = async () => {
-  return await UserModel.query().select();
+type FindUsers = {
+  active?: boolean;
+  user_id: number;
 };
+export const findUsers = async ({ active, user_id }: FindUsers) => {
+  const user = await UserModel.query().findById(user_id);
 
-export const findActiveUsers = async (active: boolean) => {
-  return await UserModel.query().where("active", active);
+  if (!user || !user.isAdmin())
+    throw new UnauthorizedError({
+      message: "User cannot access this resource",
+    });
+
+  const query = UserModel.query();
+
+  if (active) {
+    query.where("active", active);
+  }
+
+  return await query.select();
 };

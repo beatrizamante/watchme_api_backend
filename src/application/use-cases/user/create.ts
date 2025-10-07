@@ -1,45 +1,50 @@
 import { InvalidUserError } from "../../../domain/applicationErrors.ts";
-import { ProfileIPictureInterface } from "../../../domain/ProfilePictureRepository.ts";
 import { User } from "../../../domain/User.ts";
 import { UserInterface } from "../../../domain/UserRepository.ts";
 import { UserModel } from "../../../infrastructure/database/models/UserModel.ts";
-import { upsertPicture } from "./profile-picture/create.ts";
+import { UpsertPicture } from "./profile-picture/upsert.ts";
+
+type Dependencies = {
+  userRepository: UserInterface;
+  upsertPicture: UpsertPicture;
+};
 
 type CreateUserParams = {
   user: User;
-  file: Buffer;
-  userRepository: UserInterface;
-  profilePictureRepository: ProfileIPictureInterface;
+  file?: Buffer;
 };
 
-export const createUser = async ({
-  user,
-  file,
-  userRepository,
-  profilePictureRepository,
-}: CreateUserParams) => {
-  const trx = await UserModel.startTransaction();
+export const makeCreateUser =
+  ({ upsertPicture, userRepository }: Dependencies) =>
+  async ({ user, file }: CreateUserParams) => {
+    const trx = await UserModel.startTransaction();
 
-  try {
-    const validUser = new User(user);
+    try {
+      const validUser = new User(user);
 
-    const newUser = await userRepository.create(validUser, trx);
+      const newUser = await userRepository.create(validUser, trx);
 
-    if (!newUser.id)
-      throw new InvalidUserError({ message: "Couldn't create user" });
+      if (!newUser.id)
+        throw new InvalidUserError({ message: "Couldn't create user" });
 
-    const validPicture = await upsertPicture({
-      file,
-      user_id: newUser.id,
-      profilePictureRepository,
-    });
+      let validPicture = {};
+      if (file) {
+        validPicture = await upsertPicture({
+          file,
+          user_id: newUser.id,
+        });
+      }
 
-    await trx.commit();
+      await trx.commit();
 
-    return { validPicture, newUser };
-  } catch (error) {
-    await trx.rollback();
+      return { validPicture, newUser };
+    } catch (error) {
+      await trx.rollback();
 
-    throw new InvalidUserError({ message: `Could not create user: ${error}` });
-  }
-};
+      throw new InvalidUserError({
+        message: `Could not create user: ${error}`,
+      });
+    }
+  };
+
+export type CreateUser = ReturnType<typeof makeCreateUser>;

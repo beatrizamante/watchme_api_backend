@@ -1,14 +1,15 @@
 import { Transaction } from "objection";
 import { DatabaseError } from "../../../domain/applicationErrors.ts";
+import { ProfilePicture } from "../../../domain/ProfilePicture.ts";
+import { ProfileIPictureInterface } from "../../../domain/ProfilePictureRepository.ts";
 import { ProfilePictureModel } from "../models/ProfilePictureModel.ts";
 
-export const ProfilePictureRepository = {
-  async findByUserId(user_id: number) {
+export class ProfilePictureRepository implements ProfileIPictureInterface {
+  async findByUserId(user_id: number): Promise<ProfilePicture | undefined> {
     try {
-      const profilePicture = await ProfilePictureModel.query().where(
-        "user_id",
-        user_id
-      );
+      const profilePicture = await ProfilePictureModel.query()
+        .where("user_id", user_id)
+        .first();
 
       return profilePicture;
     } catch (error) {
@@ -18,9 +19,9 @@ export const ProfilePictureRepository = {
         message: `There was an error searching the picture id: ${message}`,
       });
     }
-  },
+  }
 
-  async upsert(profilePicture: ProfilePictureModel, trx: Transaction) {
+  async upsert(profilePicture: ProfilePicture, trx: Transaction) {
     try {
       const createdProfilePicture = await ProfilePictureModel.query(
         trx
@@ -34,18 +35,24 @@ export const ProfilePictureRepository = {
         message: `There was an error creating the picture: ${message}`,
       });
     }
-  },
+  }
 
-  async delete(profilePicture: ProfilePictureModel) {
+  async delete(
+    profilePicture: ProfilePicture,
+    trx: Transaction
+  ): Promise<number> {
     try {
       const deletedProfilePicture =
-        await ProfilePictureModel.query().deleteById(profilePicture.id);
+        // biome-ignore lint/style/noNonNullAssertion: "The function is always being called only if the video is found"
+        await ProfilePictureModel.query(trx).deleteById(profilePicture.id!);
 
       return deletedProfilePicture;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error on the database: ${message}`,
+      });
     }
-  },
-};
+  }
+}
