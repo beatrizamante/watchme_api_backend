@@ -1,47 +1,38 @@
+import { Transaction } from "objection";
+import { DatabaseError } from "../../../domain/applicationErrors.ts";
 import { ProfilePictureModel } from "../models/ProfilePictureModel.ts";
 
 export const ProfilePictureRepository = {
-  async findById(id: number) {
+  async findByUserId(user_id: number) {
     try {
-      const profilePicture = await ProfilePictureModel.query().findById(id);
-
-      if (!profilePicture)
-        return {
-          code: "NOT_FOUND",
-          message: "Product not found",
-        };
+      const profilePicture = await ProfilePictureModel.query().where(
+        "user_id",
+        user_id
+      );
 
       return profilePicture;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error searching the picture id: ${message}`,
+      });
     }
   },
 
-  async create(profilePicture: ProfilePictureModel) {
+  async upsert(profilePicture: ProfilePictureModel, trx: Transaction) {
     try {
-      const createdProfilePicture =
-        await ProfilePictureModel.query().insertAndFetch(profilePicture);
+      const createdProfilePicture = await ProfilePictureModel.query(
+        trx
+      ).upsertGraphAndFetch(profilePicture);
 
       return createdProfilePicture;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Database error";
 
-      return { code: "DATABASE_ERROR", message };
-    }
-  },
-
-  async update(profilePicture: ProfilePictureModel) {
-    try {
-      const updatedProfilePicture =
-        await ProfilePictureModel.query().patchAndFetch(profilePicture);
-
-      return updatedProfilePicture;
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Database error";
-
-      return { code: "DATABASE_ERROR", message };
+      throw new DatabaseError({
+        message: `There was an error creating the picture: ${message}`,
+      });
     }
   },
 

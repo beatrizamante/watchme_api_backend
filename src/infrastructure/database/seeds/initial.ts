@@ -9,12 +9,14 @@ export async function seed(knex: Knex): Promise<void> {
       email: "beatriz@amante.com",
       encrypted_password: bcrypt.hashSync("abc123", bcrypt.genSaltSync(10)),
       role: Roles.USER,
+      active: true,
     },
     {
       username: "Admin",
       email: "admin@amante.com",
       encrypted_password: bcrypt.hashSync("admin", bcrypt.genSaltSync(10)),
       role: Roles.ADMIN,
+      active: true,
     },
   ]);
 }
