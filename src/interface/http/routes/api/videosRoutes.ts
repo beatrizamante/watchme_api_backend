@@ -1,0 +1,68 @@
+import type { FastifyInstance } from "fastify";
+import { videoController } from "../../controllers/videoController.ts";
+import { authentication } from "../../middleware/auth.ts";
+
+export function videosApiRoutes(fastify: FastifyInstance) {
+  fastify.addHook("preValidation", authentication.isAuthenticated);
+
+  fastify.get(
+    "/videos",
+    {
+      schema: {
+        summary: "Find videos",
+        tags: ["Videos"],
+      },
+    },
+    videoController.list
+  );
+
+  fastify.get(
+    "/video",
+    {
+      schema: {
+        summary: "Find video",
+        tags: ["Videos"],
+        querystring: {
+          type: "object",
+          properties: {
+            id: { type: "number" },
+          },
+        },
+      },
+    },
+    videoController.find
+  );
+
+  fastify.post(
+    "/video",
+    {
+      schema: {
+        summary: "Create new video",
+        tags: ["Videos"],
+        consumes: ["multipart/form-data"],
+        body: {
+          type: "object",
+          properties: {
+            video: {
+              type: "string",
+              format: "binary",
+              description: "Video file",
+            },
+          },
+        },
+      },
+    },
+    videoController.create
+  );
+
+  fastify.delete(
+    "/video",
+    {
+      schema: {
+        summary: "Delete video",
+        tags: ["Videos"],
+      },
+    },
+    videoController.delete
+  );
+}
